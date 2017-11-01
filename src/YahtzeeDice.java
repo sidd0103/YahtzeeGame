@@ -39,6 +39,9 @@ public class YahtzeeDice {
 	public void setNumDie(int numDie) {
 		this.numDi = numDie;
 	}
+	public int getNumDie() {
+		return this.numDi;
+	}
 	
 	public Die[] getDice() {
 		return this.di;

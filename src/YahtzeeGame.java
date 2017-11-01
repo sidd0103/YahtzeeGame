@@ -17,10 +17,13 @@ public class YahtzeeGame {
 		System.out.println("---------");
 		boolean scoreNotFull = true;
 		while (scoreNotFull) {
+			//This while loop keeps track of the turns taking place
+			//these are turn based variables. 
 			gameDice.setNumDie(5);
-			int numDieUsing = 5;
 			int[] storedDiValues = new int[5];
 			int indexToAddToStoredValues = 0;
+			
+			
 			System.out.println("");
 			System.out.println("Turn # " + turn);
 			for (int i = 3; i > 0; i --) {
@@ -29,48 +32,53 @@ public class YahtzeeGame {
 				if (i > 2) {
 					String choiceRoll = this.getChoiceRoll();
 					doRoll();	
-					System.out.println("Stored values are: " + Arrays.toString(storedDiValues));
+					System.out.println("Stored values are: " + Arrays.toString(storedValuesFormatted(storedDiValues)));
 				}
 				else {
 					String choiceRollorTake = getChoiceRollOrTake();
-					if (choiceRollorTake.equals("take")) {
+					if (choiceRollorTake.equals("store")) {
 						System.out.println("Which di would you like to take out? ");
 						int[] diVals = gameDice.getDiceValues();
-						int[] diNumberRepresentations = IntStream.rangeClosed(0, diVals.length - 1).toArray();
+						int[] diNumberRepresentations = IntStream.rangeClosed(1, diVals.length).toArray();
 						System.out.println("These are the values of the di: " + Arrays.toString(diVals));
 						System.out.println("Use these numbers " + Arrays.toString(diNumberRepresentations) + " to choose a di");
 						System.out.println("If you want to choose more than one, enter choices like this: 0 1");
 						String chosenDi = "";
 						while (true) {
+							//get the choice the user wants to use. 
 							System.out.print("Enter choice here: ");
 							chosenDi = TextIO.getlnString();
 							chosenDi = chosenDi.replaceAll("\\s+","");
 							int[] payload = new int[chosenDi.length()];
+							
+							//this part creates a pay load of values chosen 
 							for (int j = 0; j < chosenDi.length(); j ++) {
-								int integerAtIndex = Character.getNumericValue((chosenDi.charAt(j)));
-								if (integerAtIndex >= 0 && integerAtIndex < diVals.length) {
-									payload[j] = diVals[integerAtIndex];
+								//make sure that we aren't choosing indexes that don't have a corresponding die
+								if (j > gameDice.getNumDie() - 1) {
+									break;
+								}
+								else {
+									int integerAtIndex = Character.getNumericValue((chosenDi.charAt(j))) - 1;
+									if (integerAtIndex >= 0 && integerAtIndex < diVals.length) {
+										//save the values at the locations chosen to a pay load array
+										payload[j] = diVals[integerAtIndex];
+									}
 								}
 							}
-							if (Arrays.asList(payload).contains(0)) {
-								continue;
+							//this part iterates through the pay load and saves values.  
+							for (int value : payload) {
+								storedDiValues[indexToAddToStoredValues] = value;
+								indexToAddToStoredValues ++;
 							}
-							else {
-								for (int value : payload) {
-									storedDiValues[indexToAddToStoredValues] = value;
-									System.out.println("Removed di with value " + value);
-									System.out.println("Stored values are: " + Arrays.toString(storedDiValues));
-									indexToAddToStoredValues ++;
-								}
-								gameDice.setNumDie(numDieUsing - payload.length);
-								break;
-							}
+							System.out.println("Stored values are: " + Arrays.toString(storedValuesFormatted(storedDiValues)));
+							gameDice.setNumDie(gameDice.getNumDie() - payload.length);
+							break;
 						}
 		
 					}
 					else if (choiceRollorTake.equals("roll")) {
 						doRoll();
-						System.out.println("Stored values are: " + Arrays.toString(storedDiValues));
+						System.out.println("Stored values are: " + Arrays.toString(storedValuesFormatted(storedDiValues)));
 					}
 				}
 				System.out.println("Roll completed");
@@ -94,9 +102,9 @@ public class YahtzeeGame {
 		boolean goodChoice = false;
 		String choiceRoll = "";
 		while (goodChoice == false) {
-			System.out.print("Type roll to roll the di or take to take the die: ");
+			System.out.print("Type roll to roll the di or store to store the die: ");
 			choiceRoll = TextIO.getlnString();
-			if (choiceRoll.toLowerCase().equals("roll") || choiceRoll.toLowerCase().equals("take")) {
+			if (choiceRoll.toLowerCase().equals("roll") || choiceRoll.toLowerCase().equals("store")) {
 				goodChoice = true;
 			}
 		}
@@ -107,6 +115,22 @@ public class YahtzeeGame {
 		int rollValue = gameDice.roll();
 		int[] diVals = gameDice.getDiceValues();
 		System.out.println("These are the values of the di: " + Arrays.toString(diVals));
-		System.out.println("The total score of your di is " + rollValue);
+	}
+	private int[] storedValuesFormatted(int[] storedDiValues) {
+		int length = 0;
+		for (int value : storedDiValues) {
+			if (value != 0) {
+				length ++;
+			}
+		}
+		int counter = 0;
+		int[] returnArray = new int[length];
+		for (int value : storedDiValues) {
+			if (value != 0) {
+				returnArray[counter] = value;
+				counter ++;
+			}
+		}
+		return returnArray;
 	}
 }
