@@ -1,5 +1,7 @@
 import java.util.Arrays;
 import java.util.stream.*;
+
+import javax.swing.plaf.synth.SynthSeparatorUI;
 public class YahtzeeGame {
 	private ScoreBoard gameScoreBoard = new ScoreBoard();
 	private YahtzeeDice liveDice = new YahtzeeDice();
@@ -30,14 +32,17 @@ public class YahtzeeGame {
 				System.out.println("");
 				System.out.println("Roll # " + (4-i));
 				if (i > 2) {
-					String choiceRoll = this.getValidChoice("roll");
+					this.getValidChoice("roll");
 					doRoll();	
 					int[] diVals = liveDice.getDiceValues();
 					int[] storedVals = getStoredValuesFormatted(storedDiValues);
 					int[] hand = getHand(diVals, storedVals);
+					int[] numericOptions = gameScoreBoard.checkNumericOptions(hand);
+					int[] ofAKindOptions = gameScoreBoard.getSpecialDetails(numericOptions, hand);
+					int[] fullHousePoints = gameScoreBoard.checkFullHouse(ofAKindOptions);
 					System.out.println("These are the values of the di: " + Arrays.toString(diVals));
-					System.out.println("Stored values are: " + Arrays.toString(storedVals));
 					System.out.println("Your hand is: " + Arrays.toString(hand));
+					System.out.println(gameScoreBoard.getScoresString(hand));
 				}
 				else {
 					String choiceRollorTake = this.getValidChoice("roll","store");
@@ -90,6 +95,7 @@ public class YahtzeeGame {
 						System.out.println("These are the values of the di: " + Arrays.toString(diVals));
 						System.out.println("Stored values are: " + Arrays.toString(storedVals));
 						System.out.println("Your hand is: " + Arrays.toString(hand));
+						System.out.println(gameScoreBoard.getScoresString(hand));
 					}
 				}
 				System.out.println("Roll completed");
