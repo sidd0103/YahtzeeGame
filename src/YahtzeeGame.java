@@ -45,57 +45,64 @@ public class YahtzeeGame {
 					System.out.println(gameScoreBoard.getScoresString(hand));
 				}
 				else {
-					String choiceRollorTake = this.getValidChoice("roll","store");
-					if (choiceRollorTake.equals("store")) {
-						System.out.println("Which di would you like to take out? ");
-						int[] diVals = liveDice.getDiceValues();
-						int[] diNumberRepresentations = IntStream.rangeClosed(1, diVals.length).toArray();
-						System.out.println("These are the values of the di: " + Arrays.toString(diVals));
-						System.out.println("Use these numbers " + Arrays.toString(diNumberRepresentations) + " to choose a di");
-						System.out.println("If you want to choose more than one, enter choices like this: 0 1");
-						String chosenDi = "";
-						while (true) {
-							//get the choice the user wants to use. 
-							System.out.print("Enter choice here: ");
-							chosenDi = TextIO.getlnString();
-							chosenDi = chosenDi.replaceAll("\\s+","");
-							int[] payload = new int[chosenDi.length()];
-							
-							//this part creates a pay load of values chosen 
-							for (int j = 0; j < chosenDi.length(); j ++) {
-								//make sure that we aren't choosing indexes that don't have a corresponding die
-								if (j > liveDice.getNumDie() - 1) {
-									break;
-								}
-								else {
-									int integerAtIndex = Character.getNumericValue((chosenDi.charAt(j))) - 1;
-									if (integerAtIndex >= 0 && integerAtIndex < diVals.length) {
-										//save the values at the locations chosen to a pay load array
-										payload[j] = diVals[integerAtIndex];
+					while (true) {
+						String choiceRollorTake = this.getValidChoice("roll","store");
+						if (choiceRollorTake.equals("store")) {
+							System.out.println("Which di would you like to take out? ");
+							int[] diVals = liveDice.getDiceValues();
+							int[] diNumberRepresentations = IntStream.rangeClosed(1, diVals.length).toArray();
+							if (diVals.length == 0) {
+								System.out.println("--You dont have any live die out currently, so you cant store anything.");
+								continue;
+							}
+							System.out.println("These are the values of the di: " + Arrays.toString(diVals));
+							System.out.println("Use these numbers " + Arrays.toString(diNumberRepresentations) + " to choose a di");
+							System.out.println("If you want to choose more than one, enter choices like this: 0 1");
+							String chosenDi = "";
+							while (true) {
+								//get the choice the user wants to use. 
+								System.out.print("Enter choice here: ");
+								chosenDi = TextIO.getlnString();
+								chosenDi = chosenDi.replaceAll("\\s+","");
+								int[] payload = new int[chosenDi.length()];
+								
+								//this part creates a pay load of values chosen 
+								for (int j = 0; j < chosenDi.length(); j ++) {
+									//make sure that we aren't choosing indexes that don't have a corresponding die
+									if (j > liveDice.getNumDie() - 1) {
+										break;
+									}
+									else {
+										int integerAtIndex = Character.getNumericValue((chosenDi.charAt(j))) - 1;
+										if (integerAtIndex >= 0 && integerAtIndex < diVals.length) {
+											//save the values at the locations chosen to a pay load array
+											payload[j] = diVals[integerAtIndex];
+										}
 									}
 								}
+								//this part iterates through the pay load and saves values.  
+								for (int value : payload) {
+									storedDiValues[indexToAddToStoredValues] = value;
+									indexToAddToStoredValues ++;
+								}
+								int[] storedVals = getStoredValuesFormatted(storedDiValues);
+								System.out.println("Stored values are: " + Arrays.toString(storedVals));
+								liveDice.setNumDie(liveDice.getNumDie() - payload.length);
+								break;
 							}
-							//this part iterates through the pay load and saves values.  
-							for (int value : payload) {
-								storedDiValues[indexToAddToStoredValues] = value;
-								indexToAddToStoredValues ++;
-							}
+			
+						}
+						else if (choiceRollorTake.equals("roll")) {
+							doRoll();
+							int[] diVals = liveDice.getDiceValues();
 							int[] storedVals = getStoredValuesFormatted(storedDiValues);
+							int[] hand = getHand(diVals, storedVals);
+							System.out.println("These are the values of the di: " + Arrays.toString(diVals));
 							System.out.println("Stored values are: " + Arrays.toString(storedVals));
-							liveDice.setNumDie(liveDice.getNumDie() - payload.length);
+							System.out.println("Your hand is: " + Arrays.toString(hand));
+							System.out.println(gameScoreBoard.getScoresString(hand));
 							break;
 						}
-		
-					}
-					else if (choiceRollorTake.equals("roll")) {
-						doRoll();
-						int[] diVals = liveDice.getDiceValues();
-						int[] storedVals = getStoredValuesFormatted(storedDiValues);
-						int[] hand = getHand(diVals, storedVals);
-						System.out.println("These are the values of the di: " + Arrays.toString(diVals));
-						System.out.println("Stored values are: " + Arrays.toString(storedVals));
-						System.out.println("Your hand is: " + Arrays.toString(hand));
-						System.out.println(gameScoreBoard.getScoresString(hand));
 					}
 				}
 				System.out.println("Roll completed");
