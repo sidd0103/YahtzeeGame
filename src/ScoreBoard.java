@@ -3,10 +3,27 @@ import java.util.stream.*;
 public class ScoreBoard {
 	private String[] possibleChoices = new String[] {"Ones","Twos","Threes","Fours","Fives","Sixes","3oKind", "4oKind", "FHouse","SStraight","LStraight","Chance","Yahtzee"};
 	private int[] saveComboArray = new int[13];
+	private int[] usedCombos = new int[13];
 	private int[] scoresArray = new int[13];
+	public int getTotalPoints() {
+		int sum = 0;
+		for (int i = 0; i < saveComboArray.length; i ++) {
+			sum += saveComboArray[i];
+		}
+		return sum;
+	}
+	public boolean gameOver() {
+		for (int i = 0; i < usedCombos.length; i ++) {
+			if (usedCombos[i] == 0) {
+				return false;
+			}
+		}
+		return true;
+ 	}
 	public String[] getPossibleChoicesArr() {
 		return possibleChoices;
 	}
+	
 	public boolean saveCombo(String choice) {
 		int index = 0;
 		int points = 0;
@@ -16,11 +33,12 @@ public class ScoreBoard {
 				break;
 			}
 		}
-		if (saveComboArray[index] != 0) {
+		if (usedCombos[index] != 0) {
 			return false;
 		}
 		points = this.scoresArray[index];
 		saveComboArray[index] = points;
+		usedCombos[index] = 1;
 		return true;
 	}
 	public void compileScores(int[] arr) {
@@ -49,7 +67,7 @@ public class ScoreBoard {
 		scoresArray[index] = specialDetails[3];
 		//handle looking for any stored points
 		for (int i = 0; i < saveComboArray.length; i ++) {
-			if (saveComboArray[i] != 0) {
+			if (usedCombos[i] != 0) {
 				scoresArray[i] = saveComboArray[i];
 			}
 		}
@@ -64,7 +82,7 @@ public class ScoreBoard {
 		}
 		returnString += String.format("%n", "");
 		for (int i = 0; i < scoresArray.length; i ++) {
-			if (saveComboArray[i] != 0) {
+			if (usedCombos[i] != 0) {
 				returnString += String.format("%-10s", "**" + scoresArray[i]);
 			}
 			else {

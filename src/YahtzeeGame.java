@@ -40,12 +40,13 @@ public class YahtzeeGame {
 					System.out.println("Your hand is: " + Arrays.toString(hand));
 					gameScoreBoard.compileScores(hand);
 					System.out.println(gameScoreBoard.getScoresString());
+					System.out.println("--Your total points are " + gameScoreBoard.getTotalPoints());
 				}
 				else {
 					while (true) {
-						String choiceRollorTake = this.getValidChoice("roll","store");
-						if (choiceRollorTake.equals("store")) {
-							System.out.println("Which di would you like to take out? ");
+						String choiceRollorTake = this.getValidChoice("roll","hold");
+						if (choiceRollorTake.equals("hold")) {
+							System.out.println("Which die would you like to hold? ");
 							int[] diVals = liveDice.getDiceValues();
 							int[] diNumberRepresentations = IntStream.rangeClosed(1, diVals.length).toArray();
 							if (diVals.length == 0) {
@@ -99,6 +100,7 @@ public class YahtzeeGame {
 							System.out.println("Your hand is: " + Arrays.toString(hand));
 							gameScoreBoard.compileScores(hand);
 							System.out.println(gameScoreBoard.getScoresString());
+							System.out.println("--Your total points are " + gameScoreBoard.getTotalPoints());
 							break;
 						}
 					}
@@ -125,15 +127,20 @@ public class YahtzeeGame {
 							}
 						}
 						if (foundMatch == false) {
-							System.out.println("You didn't enter a choice in correctly!  Enter again: ");
+							System.out.print("You didn't enter a choice in correctly!  Enter again: ");
 						}
 					}
 					System.out.println("Saved points for " + userMatchSelection);
 					break;
 				}
 			}
+			if (gameScoreBoard.gameOver()) {
+				break;
+			}
 			this.turn ++;
 		}
+		System.out.println("Game Over! You have saved all the possible combinations!");
+		System.out.println("Your total points were " + gameScoreBoard.getTotalPoints());
 	}
 
 	//rolls the Yahtzee die object
