@@ -1,32 +1,81 @@
 import java.util.Arrays;
 import java.util.stream.*;
 public class ScoreBoard {
-	public String getScoresString(int[] arr) {
-		String[] possibleChoices = new String[] {"Ones","Twos","Threes","Fours","Fives","Sixes","3oKind", "4oKind", "FHouse","SStraight","LStraight","Chance","Yahtzee"};
+	private String[] possibleChoices = new String[] {"Ones","Twos","Threes","Fours","Fives","Sixes","3oKind", "4oKind", "FHouse","SStraight","LStraight","Chance","Yahtzee"};
+	private int[] saveComboArray = new int[13];
+	private int[] scoresArray = new int[13];
+	public String[] getPossibleChoicesArr() {
+		return possibleChoices;
+	}
+	public boolean saveCombo(String choice) {
+		int index = 0;
+		int points = 0;
+		for (int i = 0; i < possibleChoices.length; i ++) {
+			if (possibleChoices[i].equals(choice)) {
+				index = i;
+				break;
+			}
+		}
+		if (saveComboArray[index] != 0) {
+			return false;
+		}
+		points = this.scoresArray[index];
+		saveComboArray[index] = points;
+		return true;
+	}
+	public void compileScores(int[] arr) {
+		int[] scoresArray = new int[13];
+		int index = 0;
 		int[] numericOptions = this.checkNumericOptions(arr);
 		int[] specialDetails = getSpecialDetails(numericOptions, arr);
 		int[] fullHouse = checkFullHouse(specialDetails);
 		int[] straights = checkStraight(arr);
+		for (int val : numericOptions) {
+			scoresArray[index] = val;
+			index ++;
+		}
+		scoresArray[index] = specialDetails[0];
+		index ++;
+		scoresArray[index] = specialDetails[1];
+		index ++;
+		scoresArray[index] = fullHouse[0];
+		index ++;
+		scoresArray[index] = straights[0];
+		index ++;
+		scoresArray[index] = straights[1];
+		index ++;
+		scoresArray[index] = specialDetails[4];
+		index ++;
+		scoresArray[index] = specialDetails[3];
+		//handle looking for any stored points
+		for (int i = 0; i < saveComboArray.length; i ++) {
+			if (saveComboArray[i] != 0) {
+				scoresArray[i] = saveComboArray[i];
+			}
+		}
+		
+		this.scoresArray = scoresArray;
+	}
+	public String getScoresString() {
+		int[] scoresArray = this.scoresArray;
 		String returnString = "\n////////////////// --Scoredboard-- ////////////////// \n";
 		for (int i = 0; i < possibleChoices.length; i ++) {
 			returnString += String.format("%-10s", possibleChoices[i]);
 		}
 		returnString += String.format("%n", "");
-		for (int val : numericOptions) {
-			returnString += String.format("%-10s", val);
+		for (int i = 0; i < scoresArray.length; i ++) {
+			if (saveComboArray[i] != 0) {
+				returnString += String.format("%-10s", "**" + scoresArray[i]);
+			}
+			else {
+				returnString += String.format("%-10s", scoresArray[i]);
+			}
 		}
-		returnString += String.format("%-10s", specialDetails[0]);
-		returnString += String.format("%-10s", specialDetails[1]);
-		returnString += String.format("%-10s", fullHouse[0]);
-		returnString += String.format("%-10s", straights[0]);
-		returnString += String.format("%-10s", straights[1]);
-		returnString += String.format("%-10s", specialDetails[4]);
-		returnString += String.format("%-10s", specialDetails[3]);
 		returnString += "\n///////////////////////////////////////////////\n ";
 		return returnString;	
 	};
 	//returns [1's points - 6's points]
-	public int[] checkNumericOptions(int[] arr) {
+	private int[] checkNumericOptions(int[] arr) {
 		int[] numericPossibilities = new int[6];
 		for (int i = 0; i < numericPossibilities.length; i ++) {
 			int numberToLookFor = i + 1;
@@ -39,7 +88,7 @@ public class ScoreBoard {
 		return numericPossibilities;
 	}	
 	//returns [three of a kind points, four of a kind points, INT 1 IF there is a 2 of a kind and not a 3 or 4 of a kind, YAHTZEE points, CHANCE Points]
-	public int[] getSpecialDetails(int[] numericPossiblities, int[] arr) {
+	private int[] getSpecialDetails(int[] numericPossiblities, int[] arr) {
 		int sum = IntStream.of(arr).sum();
 		int[] returnArray = new int[5];
 		//set the chance value.
@@ -69,14 +118,14 @@ public class ScoreBoard {
 		return returnArray;
 	}
 	//returns [full house points]
-	public int[] checkFullHouse(int[] ofAKindPossibilities) {
+	private int[] checkFullHouse(int[] ofAKindPossibilities) {
 		if (ofAKindPossibilities[0] > 0 && ofAKindPossibilities[2] > 0) {
 			return new int[] {25};
 		}
 		return new int[] {0};
 	}
 	//returns [small straight points, large straight points]
-	public int[] checkStraight(int[] arr) {
+	private int[] checkStraight(int[] arr) {
 		int[] returnArray = new int[2];
 		Arrays.sort(arr);
 		int correctIncramentsCounter = 0;

@@ -1,14 +1,13 @@
 import java.util.Arrays;
 import java.util.stream.*;
-
-import javax.swing.plaf.synth.SynthSeparatorUI;
 public class YahtzeeGame {
 	private ScoreBoard gameScoreBoard = new ScoreBoard();
 	private YahtzeeDice liveDice = new YahtzeeDice();
 	private int gameScore; 
 	private int turn = 1;
-	
-	
+	String[] choices = new String[] {"Ones","Twos","Threes","Fours","Fives","Sixes","3oKind", "4oKind", "FHouse","SStraight","LStraight","Chance","Yahtzee"};
+	int userPoints = 0;
+
 	public int getScore() {
 		return this.gameScore;
 	}
@@ -24,8 +23,8 @@ public class YahtzeeGame {
 			liveDice.setNumDie(5);
 			int[] storedDiValues = new int[5];
 			int indexToAddToStoredValues = 0;
-			
-			
+
+
 			System.out.println("");
 			System.out.println("Turn # " + turn);
 			for (int i = 3; i > 0; i --) {
@@ -37,12 +36,10 @@ public class YahtzeeGame {
 					int[] diVals = liveDice.getDiceValues();
 					int[] storedVals = getStoredValuesFormatted(storedDiValues);
 					int[] hand = getHand(diVals, storedVals);
-					int[] numericOptions = gameScoreBoard.checkNumericOptions(hand);
-					int[] ofAKindOptions = gameScoreBoard.getSpecialDetails(numericOptions, hand);
-					int[] fullHousePoints = gameScoreBoard.checkFullHouse(ofAKindOptions);
 					System.out.println("These are the values of the di: " + Arrays.toString(diVals));
 					System.out.println("Your hand is: " + Arrays.toString(hand));
-					System.out.println(gameScoreBoard.getScoresString(hand));
+					gameScoreBoard.compileScores(hand);
+					System.out.println(gameScoreBoard.getScoresString());
 				}
 				else {
 					while (true) {
@@ -57,7 +54,7 @@ public class YahtzeeGame {
 							}
 							System.out.println("These are the values of the di: " + Arrays.toString(diVals));
 							System.out.println("Use these numbers " + Arrays.toString(diNumberRepresentations) + " to choose a di");
-							System.out.println("If you want to choose more than one, enter choices like this: 0 1");
+							System.out.println("If you want to choose more than one, enter choices like this: 1 2");
 							String chosenDi = "";
 							while (true) {
 								//get the choice the user wants to use. 
@@ -65,7 +62,7 @@ public class YahtzeeGame {
 								chosenDi = TextIO.getlnString();
 								chosenDi = chosenDi.replaceAll("\\s+","");
 								int[] payload = new int[chosenDi.length()];
-								
+
 								//this part creates a pay load of values chosen 
 								for (int j = 0; j < chosenDi.length(); j ++) {
 									//make sure that we aren't choosing indexes that don't have a corresponding die
@@ -90,7 +87,7 @@ public class YahtzeeGame {
 								liveDice.setNumDie(liveDice.getNumDie() - payload.length);
 								break;
 							}
-			
+
 						}
 						else if (choiceRollorTake.equals("roll")) {
 							doRoll();
@@ -100,17 +97,45 @@ public class YahtzeeGame {
 							System.out.println("These are the values of the di: " + Arrays.toString(diVals));
 							System.out.println("Stored values are: " + Arrays.toString(storedVals));
 							System.out.println("Your hand is: " + Arrays.toString(hand));
-							System.out.println(gameScoreBoard.getScoresString(hand));
+							gameScoreBoard.compileScores(hand);
+							System.out.println(gameScoreBoard.getScoresString());
 							break;
 						}
 					}
 				}
 				System.out.println("Roll completed");
+				String userChoice;
+				do {
+					System.out.print("Do you want to store points? Type 'yes' or 'no':  ");
+					userChoice = TextIO.getln();
+				}while(!userChoice.equals("yes") && !userChoice.equals("no"));
+				if(userChoice.equals("yes")) {
+					System.out.print("Type the name of one of the above options to store those points:  ");
+					String[] possibleEntries = gameScoreBoard.getPossibleChoicesArr();
+					boolean foundMatch = false;
+					String userMatchSelection = "";
+					while (foundMatch == false) {
+						userMatchSelection = TextIO.getln();
+						for (int index = 0; index < possibleEntries.length; index++) {
+							if (possibleEntries[index].equals(userMatchSelection)) {
+								foundMatch = true;
+								if (gameScoreBoard.saveCombo(userMatchSelection) == false) {
+									foundMatch = false;
+								}
+							}
+						}
+						if (foundMatch == false) {
+							System.out.println("You didn't enter a choice in correctly!  Enter again: ");
+						}
+					}
+					System.out.println("Saved points for " + userMatchSelection);
+					break;
+				}
 			}
 			this.turn ++;
 		}
 	}
-	
+
 	//rolls the Yahtzee die object
 	private void doRoll() {
 		System.out.println("Rolling...");
